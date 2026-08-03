@@ -1,0 +1,1 @@
+import { CategoryForm } from '@/components/forms/entity-forms';import { AppHeader, Screen } from '@/components/ui/app-ui';export default function Page(){return <Screen><AppHeader title="Nueva categoría" back/><CategoryForm/></Screen>}

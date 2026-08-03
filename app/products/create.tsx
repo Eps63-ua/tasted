@@ -1,0 +1,1 @@
+import { AppHeader, Screen } from '@/components/ui/app-ui';import { ProductForm } from '@/components/forms/entity-forms';export default function Page(){return <Screen><AppHeader title="Nuevo producto" back/><ProductForm/></Screen>}

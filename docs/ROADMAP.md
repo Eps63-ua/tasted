@@ -12,8 +12,8 @@ This roadmap is ordered. Do not start a later phase when an earlier required fou
 - [x] Create the first Git commit and push it.
 - [x] Generate and review a Figma prototype.
 - [x] Define product direction and shared/personal data boundary.
-- [ ] Add the complete project documentation pack.
-- [ ] Review the documentation diff.
+- [x] Add the complete project documentation pack.
+- [x] Review the documentation diff.
 - [ ] Commit the documentation pack.
 
 Suggested commit:
@@ -27,8 +27,8 @@ docs: add product and engineering specifications
 - [ ] Install the official Codex extension in VS Code.
 - [ ] Sign in with the ChatGPT account.
 - [ ] Open the repository root in VS Code.
-- [ ] Ask Codex to read `AGENTS.md` and all `docs/` files without editing.
-- [ ] Ask Codex to summarize the architecture and identify unresolved decisions.
+- [x] Ask Codex to read `AGENTS.md` and all `docs/` files without editing.
+- [x] Ask Codex to summarize the architecture and identify unresolved decisions.
 - [ ] Learn to review the working-tree diff in VS Code.
 - [ ] Learn to request plan-only, implementation, review, and explanation modes.
 - [ ] Confirm Codex does not commit or push without explicit permission.
