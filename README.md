@@ -1,50 +1,109 @@
-# Welcome to your Expo app 👋
+# Tasted
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Tasted is an Android-first personal food diary for manually registering, rating, reviewing, and organizing food and drink products tried in supermarkets, restaurants, cafés, bakeries, ice-cream shops, and other establishments.
 
-## Get started
+The project is inspired by the idea of a personal media diary: products and establishments form a shared catalog, while each user's rating, review, favorite state, and categories remain personal.
 
-1. Install dependencies
+## Current status
 
-   ```bash
-   npm install
-   ```
+The project is in its initial setup and specification phase.
 
-2. Start the app
+Completed:
 
-   ```bash
-   npx expo start
-   ```
+- Expo React Native project created with TypeScript and Expo Router.
+- Project tested successfully on a physical Android device with Expo Go.
+- GitHub repository initialized.
+- Figma-generated visual prototype reviewed.
+- Product, database, architecture, design, testing, security, and Codex workflow specifications prepared.
 
-In the output, you'll find options to open the app in a
+Next milestone:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Configure the Codex development workflow.
+- Create the Supabase project and first versioned database migration.
+- Implement the reusable design-token system and application shell.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## MVP features
 
-## Get a fresh project
+- Email and password authentication.
+- User profile and avatar.
+- Create, view, edit, and safely delete establishments.
+- Create, view, edit, and safely delete products.
+- One personal diary entry per user and product.
+- Half-star ratings from 0.5 to 5.
+- Personal review, favorite state, price, and tried date.
+- Personal hierarchical categories.
+- Product and establishment photos.
+- Cumulative search filters.
+- Dark-only Android interface based on the approved Figma style.
 
-When you're ready, run:
+## Main technologies
+
+- React Native
+- Expo SDK 54 during the Expo Go learning phase
+- TypeScript
+- Expo Router
+- Supabase Database, Auth, and Storage
+- PostgreSQL and Row Level Security
+- React Hook Form and Zod
+- TanStack Query
+
+Dependencies are added only when the milestone that needs them begins.
+
+## Documentation
+
+Start with [`docs/README.md`](docs/README.md).
+
+Important documents:
+
+- [`AGENTS.md`](AGENTS.md): permanent instructions for coding agents.
+- [`docs/PRODUCT_SPEC.md`](docs/PRODUCT_SPEC.md): product behavior and MVP scope.
+- [`docs/DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md): entities, relations, security, and database rules.
+- [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md): approved visual system derived from Figma.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): code organization and technical boundaries.
+- [`docs/CODEX_WORKFLOW.md`](docs/CODEX_WORKFLOW.md): step-by-step development process with Codex.
+- [`docs/ROADMAP.md`](docs/ROADMAP.md): implementation milestones.
+
+## Run locally
+
+Requirements:
+
+- Node.js compatible with the selected Expo SDK.
+- npm.
+- Expo Go on an Android phone for the current learning phase.
+
+Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Start Expo:
 
-## Learn more
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Scan the QR code with Expo Go while the computer and phone are on the same network.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Environment variables
 
-## Join the community
+Copy `.env.example` to `.env` after creating the Supabase project:
 
-Join our community of developers creating universal apps.
+```bash
+cp .env.example .env
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Never commit `.env`.
+
+## Repository policy
+
+- Small, reviewable changes.
+- Conventional commit messages.
+- No secrets in Git.
+- No force fixes or destructive Git commands.
+- Database changes through versioned migrations.
+- Android manual testing for every visible milestone.
+
+## License
+
+No license has been selected yet. Until one is added, the source code should be treated as all rights reserved.
