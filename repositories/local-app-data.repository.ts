@@ -1,14 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { seedData } from '@/data/seed';
-import type { AppData } from '@/types/domain';
+import type { AppData, CategoryDraft, EstablishmentDraft, ProductDraft, ProfileDraft } from '@/types/domain';
 import type { AppDataRepository } from './app-data.repository';
-
-const STORAGE_KEY = '@tasted/app-data/v1';
-const cloneSeed = (): AppData => JSON.parse(JSON.stringify(seedData)) as AppData;
-
-export class LocalAppDataRepository implements AppDataRepository {
-  async load() { const value = await AsyncStorage.getItem(STORAGE_KEY); return value ? JSON.parse(value) as AppData : null; }
-  async save(data: AppData) { await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-  async reset() { const data = cloneSeed(); await this.save(data); return data; }
+const KEY='@tasted/app-data/v1';const clone=():AppData=>JSON.parse(JSON.stringify(seedData)) as AppData;const makeId=(prefix:string)=>`${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+export class LocalAppDataRepository implements AppDataRepository{
+  private async read(){const value=await AsyncStorage.getItem(KEY);if(value)return JSON.parse(value) as AppData;return this.reset()}
+  private async write(data:AppData){await AsyncStorage.setItem(KEY,JSON.stringify(data))}
+  async load(){return this.read()}
+  async reset(){const data=clone();await this.write(data);return data}
+  async saveProduct(userId:string,draft:ProductDraft){const c=await this.read();const now=new Date().toISOString();const exact=c.products.find(p=>p.establishmentId===draft.establishmentId&&p.name.trim().toLowerCase()===draft.name.trim().toLowerCase()&&(p.brand??'').trim().toLowerCase()===(draft.brand??'').trim().toLowerCase());const productId=draft.id??exact?.id??makeId('product');const old=c.products.find(p=>p.id===productId);const product={id:productId,createdBy:userId,establishmentId:draft.establishmentId,name:draft.name.trim(),brand:draft.brand?.trim(),description:draft.description?.trim(),images:draft.images,coverImageUri:draft.coverImageUri??draft.images[0],createdAt:old?.createdAt??now,updatedAt:now};const entryOld=c.entries.find(e=>e.productId===productId&&e.userId===userId);const entryId=entryOld?.id??makeId('entry');const entry={id:entryId,userId,productId,rating:draft.rating,reviewText:draft.reviewText?.trim(),isFavorite:draft.isFavorite,pricePaid:draft.pricePaid,currencyCode:'EUR',triedAt:draft.triedAt,visibility:'private' as const,createdAt:entryOld?.createdAt??now,updatedAt:now};const next={...c,products:old?c.products.map(p=>p.id===productId?product:p):exact?c.products:[...c.products,product],entries:entryOld?c.entries.map(e=>e.id===entryId?entry:e):[...c.entries,entry],entryCategories:[...c.entryCategories.filter(x=>x.entryId!==entryId),...draft.categoryIds.map(categoryId=>({entryId,categoryId,userId}))]};await this.write(next);return productId}
+  async saveEstablishment(userId:string,draft:EstablishmentDraft){const c=await this.read();const result=draft.id??makeId('est');const now=new Date().toISOString();const old=c.establishments.find(x=>x.id===result);const value={...draft,id:result,createdBy:userId,createdAt:old?.createdAt??now,updatedAt:now};await this.write({...c,establishments:old?c.establishments.map(x=>x.id===result?value:x):[...c.establishments,value]});return result}
+  async saveCategory(userId:string,draft:CategoryDraft){const c=await this.read();const result=draft.id??makeId('cat');const now=new Date().toISOString();const old=c.categories.find(x=>x.id===result);const value={...draft,id:result,userId,createdAt:old?.createdAt??now,updatedAt:now};await this.write({...c,categories:old?c.categories.map(x=>x.id===result?value:x):[...c.categories,value]});return result}
+  async saveProfile(_userId:string,draft:ProfileDraft){const c=await this.read();await this.write({...c,profile:{...c.profile,...draft,updatedAt:new Date().toISOString()}})}
+  async deleteProduct(userId:string,productId:string){const c=await this.read();const ids=c.entries.filter(e=>e.productId===productId&&e.userId===userId).map(e=>e.id);await this.write({...c,products:c.products.filter(p=>p.id!==productId),entries:c.entries.filter(e=>!ids.includes(e.id)),entryCategories:c.entryCategories.filter(x=>!ids.includes(x.entryId))})}
+  async deleteEstablishment(_userId:string,id:string){const c=await this.read();if(c.products.some(p=>p.establishmentId===id))throw new Error('Este establecimiento todavía tiene productos.');await this.write({...c,establishments:c.establishments.filter(e=>e.id!==id)})}
+  async deleteCategory(_userId:string,id:string){const c=await this.read();if(c.categories.some(x=>x.parentId===id))throw new Error('Esta categoría tiene subcategorías.');await this.write({...c,categories:c.categories.filter(x=>x.id!==id),entryCategories:c.entryCategories.filter(x=>x.categoryId!==id)})}
 }
