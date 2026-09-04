@@ -23,6 +23,15 @@ npx tsc --noEmit
 npx expo-doctor
 ```
 
+The configured automated suite is run with:
+
+```bash
+npm test
+```
+
+During development, use `npm run test:watch` to rerun affected tests after each save.
+Use `npm run test:coverage` to generate the HTML coverage report in `coverage/lcov-report/index.html`.
+
 Do not run `npm audit fix --force` as a routine solution. Expo dependency compatibility takes priority over an unreviewed forced upgrade.
 
 ## 3. Manual Android smoke test

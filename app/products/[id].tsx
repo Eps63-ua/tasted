@@ -1,3 +1,36 @@
-import { router, useLocalSearchParams } from 'expo-router';import { Pencil, Trash2 } from 'lucide-react-native';import { useState } from 'react';import { ScrollView, StyleSheet, View } from 'react-native';import { AppHeader, AppText, Button, Chip, ConfirmDialog, EmptyState, IconButton, RatingStars, RemoteImage, Screen } from '@/components/ui/app-ui';import { colors, radii, spacing } from '@/constants/theme';import { useAppData } from '@/providers/app-data-provider';
-export default function Page(){const {id}=useLocalSearchParams<{id:string}>();const {data,deleteProduct}=useAppData();const [confirm,setConfirm]=useState(false);const product=data?.products.find(p=>p.id===id);const entry=data?.entries.find(e=>e.productId===id);if(!data||!product)return <Screen><AppHeader title="Producto" back/><EmptyState title="Producto no encontrado" message="Puede que ya se haya eliminado."/></Screen>;const establishment=data.establishments.find(e=>e.id===product.establishmentId);const categoryIds=entry?data.entryCategories.filter(x=>x.entryId===entry.id).map(x=>x.categoryId):[];return <Screen><AppHeader title="Producto" back right={<IconButton icon={Trash2} label="Eliminar producto" danger onPress={()=>setConfirm(true)}/>}/><ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} contentContainerStyle={styles.gallery}>{(product.images.length?product.images:[product.coverImageUri]).map((uri,index)=><RemoteImage key={`${uri}-${index}`} uri={uri} style={styles.hero}/>)}</ScrollView><View><AppText variant="screen">{product.name}</AppText>{product.brand&&<AppText color={colors.textSecondary}>{product.brand}</AppText>}</View>{establishment&&<Button title={`De ${establishment.name}`} variant="secondary" onPress={()=>router.push(`/establishments/${establishment.id}`)}/>}<View style={styles.section}><AppText variant="section">Información general</AppText><AppText color={colors.textSecondary}>{product.description||'Sin descripción general.'}</AppText></View><View style={styles.diary}><View style={styles.heading}><AppText variant="section">Mi diario</AppText><IconButton icon={Pencil} label="Editar mi entrada" onPress={()=>router.push(`/products/${id}/edit`)}/></View>{entry?<><RatingStars value={entry.rating}/><AppText color={entry.isFavorite?colors.danger:colors.textSecondary}>{entry.isFavorite?'♥ Favorito':'No marcado como favorito'}</AppText><View style={styles.chips}>{data.categories.filter(c=>categoryIds.includes(c.id)).map(c=><Chip key={c.id} label={c.name}/>)}</View><AppText>{entry.reviewText||'Sin crítica.'}</AppText><AppText color={colors.textSecondary}>{entry.pricePaid!==undefined?`${entry.pricePaid.toFixed(2)} ${entry.currencyCode}`:'Sin precio'} · {entry.triedAt||'Sin fecha'}</AppText></>:<EmptyState title="Sin entrada personal" message="Añade tu valoración a este producto."/>}</View><ConfirmDialog visible={confirm} title="Eliminar del diario" message="Se eliminarán tu valoración, crítica y categorías. El producto local también se retirará si no tiene dependencias." onCancel={()=>setConfirm(false)} onConfirm={()=>void deleteProduct(product.id).then(()=>router.replace('/'))}/></Screen>}
-const styles=StyleSheet.create({gallery:{gap:spacing[8]},hero:{width:330,height:300,borderRadius:radii.image},section:{gap:spacing[8]},diary:{backgroundColor:colors.surfaceCard,borderRadius:radii.medium,padding:spacing[16],gap:spacing[12]},heading:{flexDirection:'row',alignItems:'center',justifyContent:'space-between'},chips:{flexDirection:'row',flexWrap:'wrap',gap:spacing[8]}});
+import { router, useLocalSearchParams } from 'expo-router';
+import { Pencil, Trash2 } from 'lucide-react-native';
+import { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+
+import { AppHeader, AppText, Button, Chip, ConfirmDialog, EmptyState, FavoriteButton, IconButton, RatingStars, RemoteImage, Screen } from '@/components/ui/app-ui';
+import { colors, radii, spacing } from '@/constants/theme';
+import { useAppData } from '@/providers/app-data-provider';
+
+export default function Page() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { data, deleteProduct, toggleFavorite } = useAppData();
+  const [confirm, setConfirm] = useState(false);
+  const [favoriteSaving, setFavoriteSaving] = useState(false);
+  const product = data?.products.find((item) => item.id === id);
+  const entry = data?.entries.find((item) => item.productId === id);
+  if (!data || !product) return <Screen><AppHeader title="Producto" back/><EmptyState title="Producto no encontrado" message="Puede que ya se haya eliminado."/></Screen>;
+  const establishment = data.establishments.find((item) => item.id === product.establishmentId);
+  const categoryIds = entry ? data.entryCategories.filter((item) => item.entryId === entry.id).map((item) => item.categoryId) : [];
+  const changeFavorite = async () => { if (!entry || favoriteSaving) return; try { setFavoriteSaving(true); await toggleFavorite(product.id, !entry.isFavorite); } finally { setFavoriteSaving(false); } };
+
+  return <Screen>
+    <AppHeader title="Producto" back right={<IconButton icon={Trash2} label="Eliminar producto" danger onPress={() => setConfirm(true)}/>}/>
+    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} contentContainerStyle={styles.gallery}>{(product.images.length ? product.images : [product.coverImageUri]).map((uri,index) => <RemoteImage key={`${uri}-${index}`} uri={uri} style={styles.hero}/>)}</ScrollView>
+    <View><AppText variant="screen">{product.name}</AppText>{product.brand&&<AppText color={colors.textSecondary}>{product.brand}</AppText>}</View>
+    {establishment&&<Button title={`De ${establishment.name}`} variant="secondary" onPress={() => router.push(`/establishments/${establishment.id}`)}/>}
+    <View style={styles.section}><AppText variant="section">Información general</AppText><AppText color={colors.textSecondary}>{product.description||'Sin descripción general.'}</AppText></View>
+    <View style={styles.diary}>
+      <View style={styles.heading}><AppText variant="section">Mi diario</AppText><View style={styles.actions}>{entry&&<FavoriteButton active={entry.isFavorite} disabled={favoriteSaving} onPress={changeFavorite}/>}<IconButton icon={Pencil} label="Editar mi entrada" onPress={() => router.push(`/products/${id}/edit`)}/></View></View>
+      {entry?<><RatingStars value={entry.rating}/><View style={styles.chips}>{data.categories.filter((category) => categoryIds.includes(category.id)).map((category) => <Chip key={category.id} label={category.name}/>)}</View><AppText>{entry.reviewText||'Sin crítica.'}</AppText><AppText color={colors.textSecondary}>{entry.pricePaid!==undefined?`${entry.pricePaid.toFixed(2)} ${entry.currencyCode}`:'Sin precio'} · {entry.triedAt||'Sin fecha'}</AppText></>:<EmptyState title="Sin entrada personal" message="Añade tu valoración a este producto."/>}
+    </View>
+    <ConfirmDialog visible={confirm} title="Eliminar del diario" message="Se eliminarán tu valoración, crítica y categorías." onCancel={() => setConfirm(false)} onConfirm={() => void deleteProduct(product.id).then(() => router.replace('/'))}/>
+  </Screen>;
+}
+
+const styles=StyleSheet.create({gallery:{gap:spacing[8]},hero:{width:330,height:300,borderRadius:radii.image},section:{gap:spacing[8]},diary:{backgroundColor:colors.surfaceCard,borderRadius:radii.medium,padding:spacing[16],gap:spacing[12]},heading:{flexDirection:'row',alignItems:'center',justifyContent:'space-between'},actions:{flexDirection:'row',alignItems:'center',gap:spacing[4]},chips:{flexDirection:'row',flexWrap:'wrap',gap:spacing[8]}});

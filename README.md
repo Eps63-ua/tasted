@@ -6,21 +6,25 @@ The project is inspired by the idea of a personal media diary: products and esta
 
 ## Current status
 
-The project is in its initial setup and specification phase.
+The MVP implementation is advanced and can run in two modes: a local Android demo backed by AsyncStorage, or Supabase mode when the project credentials and migration are configured.
 
-Completed:
+Implemented in code:
 
-- Expo React Native project created with TypeScript and Expo Router.
-- Project tested successfully on a physical Android device with Expo Go.
-- GitHub repository initialized.
-- Figma-generated visual prototype reviewed.
-- Product, database, architecture, design, testing, security, and Codex workflow specifications prepared.
+- Dark Android-first navigation shell and reusable design system.
+- Authentication, password recovery, profile and protected routing for Supabase mode.
+- Product, establishment and hierarchical-category create/edit/detail flows.
+- Personal ratings, reviews, favorites, price, date, images and categories.
+- Cumulative personal search with descendant-aware AND category filters.
+- Versioned PostgreSQL schema, RLS policies, storage policies and transactional functions.
+- Automated validation, search, local-repository and critical-component tests.
 
-Next milestone:
+Still required before calling the MVP finished:
 
-- Configure the Codex development workflow.
-- Create the Supabase project and first versioned database migration.
-- Implement the reusable design-token system and application shell.
+- Apply and verify the migration in the intended Supabase project.
+- Run the two-user RLS acceptance matrix.
+- Complete the Android device smoke, accessibility, keyboard and small-screen passes.
+- Review the remaining dependency advisories as part of a controlled Expo upgrade.
+- Choose the final Android application id, icon and release assets.
 
 ## MVP features
 
@@ -62,6 +66,7 @@ Important documents:
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): code organization and technical boundaries.
 - [`docs/CODEX_WORKFLOW.md`](docs/CODEX_WORKFLOW.md): step-by-step development process with Codex.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): implementation milestones.
+- [`docs/ANDROID_DISTRIBUTION.md`](docs/ANDROID_DISTRIBUTION.md): tests, remote QR, APK and Play Store builds.
 
 ## Run locally
 
@@ -81,6 +86,15 @@ Start Expo:
 
 ```bash
 npx expo start
+```
+
+Run the automated checks:
+
+```bash
+npm run lint
+npx tsc --noEmit
+npm test
+npx expo-doctor
 ```
 
 Scan the QR code with Expo Go while the computer and phone are on the same network.
